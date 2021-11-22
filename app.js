@@ -6,35 +6,43 @@ const mysql = require('mysql');
 require('dotenv').config();
 
 const app = express();
-const port = process.env.PORT || 5000;
+const port = process.env.port || 5000;
 
-// Parsing middleware
-// Parse application/x-www-form-urlencoded
-// app.use(bodyParser.urlencoded({ extended: false }));
-app.use(express.urlencoded({extended: true})); // New
+//parsing middleware
+//parse applicaton/x-ww-form-urlencoded
+app.use(bodyParser.urlencoded({extended:false}));
 
-// Parse application/json
-// app.use(bodyParser.json());
-app.use(express.json()); // New
+//parse application/jason
+app.use(bodyParser.json());
 
-// Static Files
+//stativ file
 app.use(express.static('public'));
 
-// Templating Engine
-app.engine('hbs', exphbs( {extname: '.hbs' }));
-app.set('view engine', 'hbs');
+//templating engine
+//exphbs.engine is a change --exphbs is not a function--
+app.engine('hbs' , exphbs.engine({extname: '.hbs'}));
+app.set('view engine' , 'hbs');
 
-// Connection Pool
-// You don't need the connection here as we have it in userController
-// let connection = mysql.createConnection({
-//   host: process.env.DB_HOST,
-//   user: process.env.DB_USER,
-//   password: process.env.DB_PASS,
-//   database: process.env.DB_NAME
-// });
- 
+//connection pull
+const pool = mysql.createPool({
+    connectionLimit: 100,
+    host           : process.env.DB_HOST,
+    user           : process.env.DB_USER,
+    password       : process.env.DB_PASS,
+    database       : process.env.DB_NAME
+
+});
+
+//connect db
+pool.getConnection((err , connection) => {
+        if(err) throw err; // not connected
+        console.log('connected as id')
+});
+
 
 const routes = require('./server/routes/user');
 app.use('/', routes);
 
-app.listen(port, () => console.log(`Listening on port ${port}`));
+app.listen(port , () => console.log("listening"));
+
+
